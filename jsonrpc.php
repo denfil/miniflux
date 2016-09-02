@@ -129,7 +129,11 @@ $procedureHandler->withCallback('group.update_feed_groups', function($feed_id, $
 
 // Get all items for a specific feed
 $procedureHandler->withCallback('item.feed.list', function ($feed_id, $offset = null, $limit = null) {
-    return Model\ItemFeed\get_all_items($feed_id, $offset, $limit);
+    $items = Model\ItemFeed\get_all_items($feed_id, $offset, $limit);
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+    return $items;
 });
 
 // Count all feed items
@@ -139,7 +143,11 @@ $procedureHandler->withCallback('item.feed.count', function ($feed_id) {
 
 // Get all bookmark items
 $procedureHandler->withCallback('item.bookmark.list', function ($offset = null, $limit = null) {
-    return Model\Bookmark\get_all_items($offset, $limit);
+    $items = Model\Bookmark\get_all_items($offset, $limit);
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+    return $items;
 });
 
 // Count bookmarks
@@ -159,7 +167,11 @@ $procedureHandler->withCallback('item.bookmark.delete', function ($item_id) {
 
 // Get all unread items
 $procedureHandler->withCallback('item.list_unread', function ($offset = null, $limit = null) {
-    return Model\Item\get_all_by_status('unread', array(), $offset, $limit);
+    $items = Model\Item\get_all_by_status('unread', array(), $offset, $limit);
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+    return $items;
 });
 
 // Count all unread items
@@ -169,7 +181,11 @@ $procedureHandler->withCallback('item.count_unread', function () {
 
 // Get all read items
 $procedureHandler->withCallback('item.list_read', function ($offset = null, $limit = null) {
-    return Model\Item\get_all_by_status('read', array(), $offset, $limit);
+    $items = Model\Item\get_all_by_status('read', array(), $offset, $limit);
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+    return $items;
 });
 
 // Count all read items
@@ -179,7 +195,9 @@ $procedureHandler->withCallback('item.count_read', function () {
 
 // Get one item
 $procedureHandler->withCallback('item.info', function ($item_id) {
-    return Model\Item\get($item_id);
+    $item = Model\Item\get($item_id);
+    $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    return $item;
 });
 
 // Delete an item
@@ -214,12 +232,20 @@ $procedureHandler->withCallback('item.mark_all_as_read', function() {
 
 // Get all items with the content
 $procedureHandler->withCallback('item.get_all', function() {
-    return Model\Item\get_all();
+    $items = Model\Item\get_all();
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+    return $items;
 });
 
 // Get all items since a date
 $procedureHandler->withCallback('item.get_all_since', function($timestamp) {
-    return Model\Item\get_all_since($timestamp);
+    $items = Model\Item\get_all_since($timestamp);
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+    return $items;
 });
 
 // Get all items id and status

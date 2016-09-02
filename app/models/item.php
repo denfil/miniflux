@@ -7,6 +7,7 @@ use PicoFeed\Logging\Logger;
 use Miniflux\Handler\Service;
 use Miniflux\Model\Config;
 use Miniflux\Model\Group;
+use Miniflux\Model\Tag;
 use Miniflux\Handler;
 
 // Get all items without filtering
@@ -401,6 +402,7 @@ function cleanup($feed_id, array $items_in_feed)
                         ->eq('status', 'removed')
                         ->eq('feed_id', $feed_id)
                         ->remove();
+                    Tag\remove_by_items($chunk);
                 }
             }
         }

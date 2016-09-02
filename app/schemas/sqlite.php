@@ -5,8 +5,27 @@ namespace Miniflux\Schema;
 use PDO;
 use Miniflux\Helper;
 
-const VERSION = 44;
+const VERSION = 45;
 
+function version_45(PDO $pdo)
+{
+    $pdo->exec('
+        CREATE TABLE "tags" (
+            id INTEGER PRIMARY KEY,
+            title TEXT
+        )
+    ');
+
+    $pdo->exec('
+        CREATE TABLE "items_tags" (
+            item_id TEXT  NOT NULL,
+            tag_id INTEGER NOT NULL,
+            PRIMARY KEY(item_id, tag_id),
+            FOREIGN KEY(item_id) REFERENCES items(id) ON DELETE CASCADE,
+            FOREIGN KEY(tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        )
+    ');
+}
 
 function version_44(PDO $pdo)
 {

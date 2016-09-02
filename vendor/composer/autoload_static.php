@@ -26,6 +26,7 @@ class ComposerStaticInitfd7e8d436e1dc450edc3153ac8bc31b4
         '081a26ac825aa2a7e4cb00c18e0510d5' => __DIR__ . '/../..' . '/app/handlers/proxy.php',
         'bc98222aedc910930f5b76b8c84f334e' => __DIR__ . '/../..' . '/app/models/config.php',
         'b59348c9973f21f2c58eb493d9fea5be' => __DIR__ . '/../..' . '/app/models/search.php',
+        'e7471626caee68a253c18d9ac0c9642b' => __DIR__ . '/../..' . '/app/models/tag.php',
         '73671a34a21e27508f85cea36a9837de' => __DIR__ . '/../..' . '/app/models/user.php',
         'e8bcd5701df9db676003b87e27b091c9' => __DIR__ . '/../..' . '/app/models/feed.php',
         '7318478c1ab18cc398507355a29a93c3' => __DIR__ . '/../..' . '/app/models/item.php',

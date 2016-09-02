@@ -40,6 +40,10 @@ Router\get_action('unread', function () {
         Response\redirect('?action='.$action.'&nothing_to_read=1');
     }
 
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+
     Response\html(Template\layout('unread_items', array(
         'favicons' => Model\Favicon\get_item_favicons($items),
         'original_marks_read' => Model\Config\get('original_marks_read'),
@@ -64,6 +68,7 @@ Router\get_action('show', function () {
     $id = Request\param('id');
     $menu = Request\param('menu');
     $item = Model\Item\get($id);
+    $item_tags = Model\Tag\get_item_tags($item['id']);
     $feed = Model\Feed\get($item['feed_id']);
     $group_id = Request\int_param('group_id', null);
 
@@ -97,6 +102,7 @@ Router\get_action('show', function () {
     Response\html(Template\layout('show_item', array(
         'nb_unread_items' => Model\Item\count_by_status('unread'),
         'item' => $item,
+        'item_tags' => $item_tags,
         'feed' => $feed,
         'item_nav' => isset($nav) ? $nav : null,
         'menu' => $menu,
@@ -114,6 +120,9 @@ Router\get_action('feed-items', function () {
     $order = Request\param('order', 'updated');
     $direction = Request\param('direction', Model\Config\get('items_sorting_direction'));
     $items = Model\ItemFeed\get_all_items($feed_id, $offset, Model\Config\get('items_per_page'), $order, $direction);
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
 
     Response\html(Template\layout('feed_items', array(
         'favicons' => Model\Favicon\get_favicons(array($feed['id'])),
@@ -245,4 +254,23 @@ Router\post_action('latest-feeds-items', function () {
         'feeds' => $feeds,
         'nbUnread' => $nb_unread_items
     ));
+});
+
+// Ajax call to add tag to item
+Router\post_action('add-item-tag', function () {
+    $item_id = Request\param('item_id');
+    $title = trim(Request\param('tag_title'));
+    if ($title) {
+        Model\Tag\add($item_id, $title);
+    }
+    $item_tags = Model\Tag\get_item_tags($item_id);
+    Response\json(array('tags' => $item_tags));
+});
+
+// Ajax call to remove tag from item
+Router\post_action('remove-item-tag', function () {
+    $item_id = Request\param('item_id');
+    Model\Tag\remove($item_id, Request\param('tag_id'));
+    $item_tags = Model\Tag\get_item_tags($item_id);
+    Response\json(array('tags' => $item_tags));
 });

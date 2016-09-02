@@ -44,6 +44,7 @@
             "app/handlers/proxy.php",
             "app/models/config.php",
             "app/models/search.php",
+            "app/models/tag.php",
             "app/models/user.php",
             "app/models/feed.php",
             "app/models/item.php",

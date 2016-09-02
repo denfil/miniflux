@@ -93,4 +93,5 @@
     <?php else: ?>
         <p class="no-preview"></p>
     <?php endif ?>
+    <?= Miniflux\Template\load('item_tags', array('item_id' => $item['id'], 'tags' => $item['tags'])) ?>
 </article>

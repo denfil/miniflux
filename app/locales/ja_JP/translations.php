@@ -252,4 +252,6 @@ return array(
     // 'Send bookmarks to Wallabag' => '',
     // 'Wallabag username' => '',
     // 'Wallabag password' => '',
+    // 'Edit tags' => '',
+    // 'Press Enter to save.' => '',
 );

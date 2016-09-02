@@ -55,6 +55,10 @@ Router\get_action('bookmarks', function () {
         $feed_ids
     );
 
+    foreach ($items as &$item) {
+        $item['tags'] = Model\Tag\get_item_tags($item['id']);
+    }
+
     Response\html(Template\layout('bookmarks', array(
         'favicons' => Model\Favicon\get_item_favicons($items),
         'original_marks_read' => Model\Config\get('original_marks_read'),

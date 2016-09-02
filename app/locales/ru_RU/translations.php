@@ -250,4 +250,6 @@ return array(
     'Send bookmarks to Wallabag' => 'Отправлять закладки в Wallabag',
     'Wallabag username' => 'Имя пользователя Wallabag',
     'Wallabag password' => 'Пароль Wallabag',
+    'Edit tags' => 'Редактировать теги',
+    'Press Enter to save.' => 'Нажмите Enter для сохранения.',
 );

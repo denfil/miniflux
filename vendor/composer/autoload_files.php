@@ -25,6 +25,7 @@ return array(
     '081a26ac825aa2a7e4cb00c18e0510d5' => $baseDir . '/app/handlers/proxy.php',
     'bc98222aedc910930f5b76b8c84f334e' => $baseDir . '/app/models/config.php',
     'b59348c9973f21f2c58eb493d9fea5be' => $baseDir . '/app/models/search.php',
+    'e7471626caee68a253c18d9ac0c9642b' => $baseDir . '/app/models/tag.php',
     '73671a34a21e27508f85cea36a9837de' => $baseDir . '/app/models/user.php',
     'e8bcd5701df9db676003b87e27b091c9' => $baseDir . '/app/models/feed.php',
     '7318478c1ab18cc398507355a29a93c3' => $baseDir . '/app/models/item.php',
