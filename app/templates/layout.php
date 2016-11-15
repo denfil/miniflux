@@ -55,15 +55,15 @@
         </header>
         <div id="menu-more" class="hide">
             <ul>
-                <li<?php echo isset($menu) && $menu === 'unread' ? ' class="active"' : '' ?>><a href="?action=unread"><?= t('unread') ?></a></li>
-                <li<?php echo isset($menu) && $menu === 'bookmarks' ? ' class="active"' : '' ?>><a href="?action=bookmarks"><?= t('bookmarks') ?></a></li>
-                <li<?php echo isset($menu) && $menu === 'history' ? ' class="active"' : '' ?>><a href="?action=history"><?= t('history') ?></a></li>
-                <li<?php echo isset($menu) && $menu === 'feeds' ? ' class="active"' : '' ?>><a href="?action=feeds"><?= t('subscriptions') ?></a></li>
-                <li<?php echo isset($menu) && $menu === 'config' ? ' class="active"' : '' ?>><a href="?action=config"><?= t('preferences') ?></a></li>
-                <li><a href="?action=logout"><?= t('logout') ?></a></li>
+                <li<?php echo isset($menu) && $menu === 'unread' ? ' class="active"' : '' ?>><a href="?action=unread"><?php echo t('unread') ?></a></li>
+                <li<?php echo isset($menu) && $menu === 'bookmarks' ? ' class="active"' : '' ?>><a href="?action=bookmarks"><?php echo t('bookmarks') ?></a></li>
+                <li<?php echo isset($menu) && $menu === 'history' ? ' class="active"' : '' ?>><a href="?action=history"><?php echo t('history') ?></a></li>
+                <li<?php echo isset($menu) && $menu === 'feeds' ? ' class="active"' : '' ?>><a href="?action=feeds"><?php echo t('subscriptions') ?></a></li>
+                <li<?php echo isset($menu) && $menu === 'config' ? ' class="active"' : '' ?>><a href="?action=config"><?php echo t('preferences') ?></a></li>
+                <li><a href="?action=logout"><?php echo t('logout') ?></a></li>
             </ul>
         </div>
-        <section class="page" data-item-page="<?= $menu ?>">
+        <section class="page" data-item-page="<?php echo $menu ?>">
             <?php echo Miniflux\Helper\flash('flash_message', '<div class="alert alert-success">%s</div>') ?>
             <?php echo Miniflux\Helper\flash('flash_error_message', '<div class="alert alert-error">%s</div>') ?>
             <?php echo $content_for_layout ?>

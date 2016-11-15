@@ -20,10 +20,6 @@ Router\get_action('search', function() {
         $nb_items = Model\Search\count_items($text);
     }
 
-    foreach ($items as &$item) {
-        $item['tags'] = Model\Tag\get_item_tags($item['id']);
-    }
-
     Response\html(Template\layout('search', array(
         'favicons' => Model\Favicon\get_item_favicons($items),
         'original_marks_read' => Model\Config\get('original_marks_read'),
@@ -57,10 +53,6 @@ Router\get_action('search-tag', function() {
     if ($tag_id) {
         $items = Model\Search\get_all_items_with_tag($tag_id, $offset, Model\Config\get('items_per_page'));
         $nb_items = Model\Search\count_items_with_tag($tag_id);
-    }
-
-    foreach ($items as &$item) {
-        $item['tags'] = Model\Tag\get_item_tags($item['id']);
     }
 
     Response\html(Template\layout('search_tag', array(

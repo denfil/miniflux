@@ -3,6 +3,7 @@
 namespace Miniflux\Model\ItemFeed;
 
 use PicoDb\Database;
+use Miniflux\Model\Tag;
 
 function count_items($feed_id)
 {
@@ -15,7 +16,7 @@ function count_items($feed_id)
 
 function get_all_items($feed_id, $offset = null, $limit = null, $order_column = 'updated', $order_direction = 'desc')
 {
-    return Database::getInstance('db')
+    $items = Database::getInstance('db')
         ->table('items')
         ->columns(
             'items.id',
@@ -40,6 +41,16 @@ function get_all_items($feed_id, $offset = null, $limit = null, $order_column = 
         ->offset($offset)
         ->limit($limit)
         ->findAll();
+    $itemIds = array();
+    foreach ($items as $item) {
+        $itemIds[] = $item['id'];
+    }
+    $tags = Tag\get_items_tags_map($itemIds);
+    foreach ($items as &$item) {
+        $itemId = $item['id'];
+        $item['tags'] = isset($tags[$itemId]) ? $tags[$itemId] : array();
+    }
+    return $items;
 }
 
 function mark_all_as_read($feed_id)

@@ -30,10 +30,6 @@ Router\get_action('history', function () {
 
     $nb_items = Model\Item\count_by_status('read', $feed_ids);
 
-    foreach ($items as &$item) {
-        $item['tags'] = Model\Tag\get_item_tags($item['id']);
-    }
-
     Response\html(Template\layout('history', array(
         'favicons' => Model\Favicon\get_item_favicons($items),
         'original_marks_read' => Model\Config\get('original_marks_read'),

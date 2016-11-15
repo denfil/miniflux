@@ -788,7 +788,22 @@ ul.item-infos {
     display: inline-block;
 }
 
-.tag-list > a {
+.tag-list ul,
+.tag-list li {
+    margin: 0;
+    list-style: none;
+    display: inline-block;
+}
+
+.tag-list li:after {
+    content: ", ";
+}
+
+.tag-list li:last-child:after {
+    content: "";
+}
+
+.tag-list li > a {
     color: #aaa;
     white-space: nowrap;
 }

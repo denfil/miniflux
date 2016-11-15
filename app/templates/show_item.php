@@ -99,7 +99,7 @@
             <?php echo $item['content'] ?>
         </div>
 
-        <?= Miniflux\Template\load('item_tags', array('item_id' => $item['id'], 'tags' => $item_tags)) ?>
+        <?php echo Miniflux\Template\load('item_tags', array('item_id' => $item['id'], 'tags' => $item['tags'])) ?>
 
         <?php if (isset($item_nav)): ?>
         <nav class="bottom">

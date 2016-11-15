@@ -5,6 +5,7 @@ namespace Miniflux\Model\Bookmark;
 use PicoDb\Database;
 use Miniflux\Handler\Service;
 use Miniflux\Model\Config;
+use Miniflux\Model\Tag;
 
 function count_items($feed_ids = array())
 {
@@ -18,7 +19,7 @@ function count_items($feed_ids = array())
 
 function get_all_items($offset = null, $limit = null, $feed_ids = array())
 {
-    return Database::getInstance('db')
+    $items = Database::getInstance('db')
         ->table('items')
         ->columns(
             'items.id',
@@ -45,6 +46,16 @@ function get_all_items($offset = null, $limit = null, $feed_ids = array())
         ->offset($offset)
         ->limit($limit)
         ->findAll();
+    $itemIds = array();
+    foreach ($items as $item) {
+        $itemIds[] = $item['id'];
+    }
+    $tags = Tag\get_items_tags_map($itemIds);
+    foreach ($items as &$item) {
+        $itemId = $item['id'];
+        $item['tags'] = isset($tags[$itemId]) ? $tags[$itemId] : array();
+    }
+    return $items;
 }
 
 function set_flag($id, $value)

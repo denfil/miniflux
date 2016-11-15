@@ -13,7 +13,7 @@ use Miniflux\Handler;
 // Get all items without filtering
 function get_all()
 {
-    return Database::getInstance('db')
+    $items = Database::getInstance('db')
         ->table('items')
         ->columns(
             'items.id',
@@ -35,12 +35,22 @@ function get_all()
         ->in('status', array('read', 'unread'))
         ->orderBy('updated', 'desc')
         ->findAll();
+    $itemIds = array();
+    foreach ($items as $item) {
+        $itemIds[] = $item['id'];
+    }
+    $tags = Tag\get_items_tags_map($itemIds);
+    foreach ($items as &$item) {
+        $itemId = $item['id'];
+        $item['tags'] = isset($tags[$itemId]) ? $tags[$itemId] : array();
+    }
+    return $items;
 }
 
 // Get everthing since date (timestamp)
 function get_all_since($timestamp)
 {
-    return Database::getInstance('db')
+    $items = Database::getInstance('db')
         ->table('items')
         ->columns(
             'items.id',
@@ -63,6 +73,16 @@ function get_all_since($timestamp)
         ->gte('updated', $timestamp)
         ->orderBy('updated', 'desc')
         ->findAll();
+    $itemIds = array();
+    foreach ($items as $item) {
+        $itemIds[] = $item['id'];
+    }
+    $tags = Tag\get_items_tags_map($itemIds);
+    foreach ($items as &$item) {
+        $itemId = $item['id'];
+        $item['tags'] = isset($tags[$itemId]) ? $tags[$itemId] : array();
+    }
+    return $items;
 }
 
 function get_latest_feeds_items()
@@ -93,7 +113,7 @@ function get_all_status()
 // Get all items by status
 function get_all_by_status($status, $feed_ids = array(), $offset = null, $limit = null, $order_column = 'updated', $order_direction = 'desc')
 {
-    return Database::getInstance('db')
+    $items = Database::getInstance('db')
         ->table('items')
         ->columns(
             'items.id',
@@ -119,6 +139,16 @@ function get_all_by_status($status, $feed_ids = array(), $offset = null, $limit 
         ->offset($offset)
         ->limit($limit)
         ->findAll();
+    $itemIds = array();
+    foreach ($items as $item) {
+        $itemIds[] = $item['id'];
+    }
+    $tags = Tag\get_items_tags_map($itemIds);
+    foreach ($items as &$item) {
+        $itemId = $item['id'];
+        $item['tags'] = isset($tags[$itemId]) ? $tags[$itemId] : array();
+    }
+    return $items;
 }
 
 // Get the number of items per status
@@ -134,10 +164,14 @@ function count_by_status($status, $feed_ids = array())
 // Get one item by id
 function get($id)
 {
-    return Database::getInstance('db')
+    $item = Database::getInstance('db')
         ->table('items')
         ->eq('id', $id)
         ->findOne();
+    if ($item) {
+        $item['tags'] = Tag\get_item_tags($item['id']);
+    }
+    return $item;
 }
 
 // Get item naviguation (next/prev items)

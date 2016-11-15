@@ -57,6 +57,25 @@ function get_item_tags($item_id)
         ->findAll();
 }
 
+function get_items_tags_map(array $item_ids)
+{
+    $tags = Database::getInstance('db')
+        ->table('tags')
+        ->columns('items_tags.item_id', 'tags.id', 'tags.title')
+        ->join('items_tags', 'tag_id', 'id')
+        ->in('item_id', $item_ids)
+        ->findAll();
+    $result = array();
+    foreach ($tags as $tag) {
+        $itemId = $tag['item_id'];
+        $result[$itemId][] = array(
+            'id' => $tag['id'],
+            'title' => $tag['title']
+        );
+    }
+    return $result;
+}
+
 /**
  * Get the id of a tag
  *
@@ -82,18 +101,17 @@ function get_tag_id($title)
  */
 function create($title)
 {
-    $data = array('title' => $title);
+    $title = htmlspecialchars(strip_tags($title), ENT_QUOTES);
 
     // check if the tag already exists
     $tag_id = get_tag_id($title);
 
     // create tag if missing
     if ($tag_id === false) {
-        Database::getInstance('db')
-                ->table('tags')
-                ->insert($data);
-
-        $tag_id = get_tag_id($title);
+        $data = array('title' => $title);
+        $tag_id = Database::getInstance('db')
+            ->table('tags')
+            ->persist($data);
     }
 
     return $tag_id;
