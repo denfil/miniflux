@@ -1,36 +1,57 @@
 <?php
+
+use Miniflux\Session\SessionManager;
+use Miniflux\Session\SessionStorage;
+use Miniflux\Response;
+use Miniflux\Model\Feed;
+use Miniflux\Model\Item;
+use PicoDb\Database;
+
 require_once __DIR__ . '/app/common.php';
 
-Miniflux\Session\open(BASE_URL_DIRECTORY, SESSION_SAVE_PATH, 0);
-if (! Miniflux\Model\User\is_loggedin()) {
-    Miniflux\Response\redirect('index.php?action=login');
+SessionManager::open(BASE_URL_DIRECTORY, SESSION_SAVE_PATH, 0);
+if (! SessionStorage::getInstance()->isLogged() || ! SessionStorage::getInstance()->isAdmin()) {
+    Response\redirect('index.php?action=login');
 }
 
-class Item {
+$userId = SessionStorage::getInstance()->getUserId();
+
+class Bookmarks {
     private $database;
 
     private $feeds;
 
     private $error = '';
 
+    private $userId;
+
+    public function __construct($userId) {
+        $this->userId = $userId > 0 ? (int)$userId : 1;
+    }
+
     public function getDefault() {
         return [
+            'user_id' => $this->userId,
+            'feed_id' => 0,
+            'checksum' => '',
+            'status' => Item\STATUS_UNREAD,
+            'bookmark' => 1,
             'url' => '',
             'title' => '',
             'author' => '',
             'content' => '',
-            'updated' => date('Y-m-d H:i:s'),
-            'read' => false,
-            'bookmark' => true,
-            'feed_id' => 0,
-            'language' => ''
+            'updated' => time(),
+            'enclosure_url' => '',
+            'enclosure_type' => '',
+            'language' => '',
+            'rtl' => 0
         ];
     }
 
     public function hasBookmarksFeed() {
         $db = $this->getDatabase();
         $found = $db
-            ->table('feeds')
+            ->table(Feed\TABLE)
             ->columns('id')
             ->eq('id', 0)
             ->findOne();
@@ -44,19 +65,22 @@ class Item {
         $db = $this->getDatabase();
         $feed = [
             'id' => 0,
-            'site_url' => '',
+            'user_id' => $this->userId,
             'feed_url' => '',
+            'site_url' => '',
             'title' => 'Bookmarks',
+            'last_checked' => 0,
             'last_modified' => time(),
             'etag' => '',
-            'last_checked' => 0,
-            'enabled' => 0,
+            'enabled' => Feed\STATUS_INACTIVE,
             'download_content' => 0,
             'parsing_error' => 0,
             'rtl' => 0,
-            'cloak_referrer' => 0
+            'cloak_referrer' => 0,
+            'parsing_error_message' => '',
+            'expiration' => 0
         ];
-        $success = $db->table('feeds')->save($feed);
+        $success = $db->table(Feed\TABLE)->save($feed);
         if ($success !== true) {
             $this->setError('Bookmarks feed creation error.');
             return false;
@@ -69,7 +93,7 @@ class Item {
             return $this->feeds;
         }
         $db = $this->getDatabase();
-        $feeds = $db->table('feeds')
+        $feeds = $db->table(Feed\TABLE)
             ->columns('id', 'title')
             ->findAll();
         $this->feeds = empty($feeds) ? [] : $feeds;
@@ -84,7 +108,7 @@ class Item {
         }
         $db = $this->getDatabase();
         $found = $db
-            ->table('items')
+            ->table(Item\TABLE)
             ->columns('id', 'title', 'url')
             ->eq('url', $item['url'])
             ->findOne();
@@ -93,7 +117,7 @@ class Item {
                 . ' <a href="' . $found['url'] . '" target="_blank">' . strip_tags($found['title']) . '</a>');
             return false;
         }
-        $success = $db->table('items')->save($item);
+        $success = $db->table(Item\TABLE)->save($item);
         if ($success !== true) {
             $this->setError('Item adding error.');
             return false;
@@ -126,32 +150,34 @@ class Item {
             return false;
         }
         $result = [
-            'id' => 0,
+            'user_id' => $this->userId,
+            'feed_id' => $feedId,
+            'checksum' => '',
+            'status' => isset($data['status']) ? Item\STATUS_READ : Item\STATUS_UNREAD,
+            'bookmark' => isset($data['bookmark']) ? 1 : 0,
             'url' => trim($data['url']),
             'title' => trim($data['title']),
             'author' => empty($data['author']) ? '' : $data['author'],
             'content' => empty($data['content']) ? '' : $data['content'],
-            'updated' => empty($data['update']) ? time() : strtotime($data['update']),
-            'status' => isset($data['read']) ? 'read' : 'unread',
-            'feed_id' => $feedId,
-            'bookmark' => isset($data['bookmark']) ? 1 : 0,
-            'enclosure' => '',
+            'updated' => empty($data['updated']) ? time() : strtotime($data['updated']),
+            'enclosure_url' => '',
             'enclosure_type' => '',
-            'language' => empty($data['language']) ? '' : $data['language']
+            'language' => empty($data['language']) ? '' : $data['language'],
+            'rtl' => 0
         ];
-        $result['id'] = hash('crc32b', implode([$result['title'], $result['url'], $result['content']]));
+        $result['checksum'] = hash('crc32b', implode([$result['title'], $result['url'], $result['content']]));
         return $result;
     }
 
     private function getDatabase() {
         if ($this->database === null) {
-            $this->database = PicoDb\Database::getInstance('db');
+            $this->database = Database::getInstance('db');
         }
         return $this->database;
     }
 }
 
-$model = new Item();
+$model = new Bookmarks($userId);
 $message = '';
 if (isset($_GET['create_feed'])) {
     $success = $model->createBookmarksFeed();
@@ -170,8 +196,8 @@ if (isset($_POST['item'])) {
         : '<div class="error">' . $model->getError() . '</div>';
     if ($success == false) {
         $item = $_POST['item'];
-        $item['read'] = isset($_POST['item']['read']);
-        $item['bookmark'] = isset($_POST['item']['bookmark']);
+        $item['status'] = isset($_POST['item']['status']) ? Item\STATUS_READ : Item\STATUS_UNREAD;
+        $item['bookmark'] = (int)isset($_POST['item']['bookmark']);
     }
 }
 ?>
@@ -226,7 +252,7 @@ if (isset($_POST['item'])) {
         <div><input type="text" name="item[title]" value="<?php echo $item['title']; ?>" placeholder="Title" required="required"></div>
         <div><input type="text" class="short" name="item[author]" value="<?php echo $item['author']; ?>" placeholder="Author"></div>
         <div><textarea name="item[content]" placeholder="Content"><?php echo $item['content']; ?></textarea></div>
-        <div><input type="text" class="short" name="item[updated]" value="<?php echo $item['updated']; ?>" placeholder="Updated"></div>
+        <div><input type="text" class="short" name="item[updated]" value="<?php echo date('Y-m-d H:i:s', $item['updated']); ?>" placeholder="Updated"></div>
         <div><input id="lang" type="text" class="short" name="item[language]" value="<?php echo $item['language']; ?>" placeholder="Language"><div id="lang-list" class="help-block">
             <span>ru</span>
             <span>ru-RU</span>
@@ -234,7 +260,7 @@ if (isset($_POST['item'])) {
             <span>en-us</span>
             <span>en</span>
         </div></div>
-        <div><label><input type="checkbox" name="item[read]" value="1"<?php echo $item['read'] ? ' checked="checked"' : ''; ?>> Read</label></div>
+        <div><label><input type="checkbox" name="item[status]" value="<?php echo Item\STATUS_READ; ?>"<?php echo $item['status'] == Item\STATUS_READ ? ' checked="checked"' : ''; ?>> Read</label></div>
         <div><label><input type="checkbox" name="item[bookmark]" value="1"<?php echo $item['bookmark'] ? ' checked="checked"' : ''; ?>> Bookmark</label></div>
         <div><input type="submit" value="Add item"></div>
     </form>
