@@ -282,4 +282,6 @@ return array(
     'Shaarli secret' => 'Shaarli secret',
     'Shaarli tags' => 'Shaarli тэги',
     'Private Bookmarks' => 'Приватные Закладки',
+    'Edit tags' => 'Редактировать теги',
+    'Press Enter to save.' => 'Нажмите Enter для сохранения.',
 );

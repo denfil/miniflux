@@ -282,4 +282,6 @@ return array(
     // 'Shaarli secret' => '',
     // 'Shaarli tags' => '',
     // 'Private Bookmarks' => '',
+    // 'Edit tags' => '',
+    // 'Press Enter to save.' => '',
 );

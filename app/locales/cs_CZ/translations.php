@@ -282,4 +282,6 @@ return array(
     'Shaarli secret' => 'Shaarli heslo',
     'Shaarli tags' => 'Shaarli štítky',
     'Private Bookmarks' => 'Soukromé záložky',
+    // 'Edit tags' => '',
+    // 'Press Enter to save.' => '',
 );
